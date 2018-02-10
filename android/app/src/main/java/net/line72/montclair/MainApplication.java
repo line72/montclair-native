@@ -1,4 +1,4 @@
-package com.montclair;
+package net.line72.montclair;
 
 import android.app.Application;
 
