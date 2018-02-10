@@ -13,6 +13,7 @@
  *******************************************/
 
 import React, { Component } from 'react';
+import { Image } from 'react-native';
 import { Marker, LatLng } from 'react-native-maps';
 import renderIf from 'render-if';
 
@@ -24,6 +25,7 @@ import renderIf from 'render-if';
 class Bus extends Component {
     render() {
         const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
+        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} />;
 
         // let icon = L.icon({
         //     iconUrl: url,
@@ -74,7 +76,7 @@ class Bus extends Component {
         
         return (
             <Marker coordinate={coordinate}
-                    image={url}>
+                    image={icon}>
             </Marker>
         );
     }

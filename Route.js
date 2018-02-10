@@ -13,6 +13,7 @@
  *******************************************/
 
 import React, { Component } from 'react';
+import { View } from 'react-native';
 import { Marker } from 'react-native-maps';
 //import { GeoJSON } from 'react-leaflet';
 import Bus from './Bus';
@@ -36,8 +37,6 @@ class Route extends Component {
     }
 
     render() {
-        console.log(`Route.render`);
-        
         let style = () => {
             let w = this.state.selected ? 7 : 1;
 
@@ -47,7 +46,6 @@ class Route extends Component {
             };
         };
 
-        console.log(`vehicles=${JSON.stringify(this.props.vehicles)}`);
         let buses = this.props.vehicles.map((vehicle, index) => {
             let onOpen = () => {
                 this.setState({
@@ -62,7 +60,6 @@ class Route extends Component {
 
             let route_name = `${this.props.number} - ${this.props.name}`;
 
-            console.log(`bus=${vehicle.id} ${route_name}`);
             return (
                 <Bus key={vehicle.id}
                      id={vehicle.id}
@@ -94,18 +91,10 @@ class Route extends Component {
         // } else {
         //     return (<div>{buses}</div>);
         // }
-        for (let k in buses) {
-            let b = buses[k];
-            console.log(`buses=${b}`);
-        }
 
-        console.log(`isArray: ${Array.isArray(buses)}`);
-        
-        if (buses.length == 0) {
-            return (<Marker coordinate={{latitude: 33.5, longitude: -86.0}}/>);
-        } else {
-            return buses[0];
-        }
+        return (
+            <View>{buses}</View>
+        );
     }
 }
 
