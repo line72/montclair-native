@@ -43,7 +43,13 @@ class RouteContainer extends Component {
                        "_northEast": {"lat": 34.0, "lng": -86.0}};
 
         this.state = {
-            agencies: agencies
+            agencies: agencies,
+            region: {
+                latitude: configuration.center[0],
+                longitude: configuration.center[1],
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421
+            }
         };
 
 
@@ -155,8 +161,14 @@ class RouteContainer extends Component {
         this.storage.updateVisibility(agencies);
     }
 
-    onBoundsChanged = (bounds) => {
-        this.bounds = bounds;
+    onBoundsChanged = (region) => {
+        console.log(`onBoundsChanged ${JSON.stringify(region)}`);
+        this.bounds = {
+            "_southWest": {"lat": region.latitude - region.latitudeDelta,
+                           "lng": region.longitude - region.longitudeDelta},
+            "_northEast": {"lat": region.latitude + region.latitudeDelta,
+                           "lng": region.longitude + region.latitudeDelta}
+        };
     }
 
     render() {
@@ -206,15 +218,13 @@ class RouteContainer extends Component {
     //     );
     // }
 
+        const {region} = this.state;
         return (
             <MapView
                 style={styles.map}
-                initialRegion={{
-                    latitude: 33.5084801,
-                    longitude: -86.8006611,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}>
+                initialRegion={region}
+                onRegionChangeComplete={this.onBoundsChanged}
+                >
                 {routes}
             </MapView>
         );

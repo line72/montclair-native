@@ -25,16 +25,16 @@ class Configuration {
         // Birmingham, AL
         this.center = [33.5084801, -86.8006611];
 
-        this.agencies = [
-            {
-                name: 'BJCTA',
-                parser: new AvailtecParser('https://realtimebjcta.availtec.com/InfoPoint')
-            },
-            {
-                name: 'UAB',
-                parser: new TranslocParser(this.transloc_key, '395')
-            }
-        ]
+        // this.agencies = [
+        //     {
+        //         name: 'BJCTA',
+        //         parser: new AvailtecParser('https://realtimebjcta.availtec.com/InfoPoint')
+        //     },
+        //     {
+        //         name: 'UAB',
+        //         parser: new TranslocParser(this.transloc_key, '395')
+        //     }
+        // ]
 
         // // Raleigh, NC
         // this.center = [35.7740151,-78.6449387];
@@ -57,6 +57,15 @@ class Configuration {
         //         parser: new AvailtecParser('http://connect.ridetherapid.org/InfoPoint')
         //     },
         // ]
+
+        // Akron, OH
+        this.center = [41.0780764, -81.5036268];
+        this.agencies = [
+            {
+                name: 'Akron',
+                parser: new AvailtecParser('https://realtimemetro.availtec.com/InfoPoint')
+            },
+        ];
     }
 }
 
