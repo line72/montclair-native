@@ -13,8 +13,8 @@
  *******************************************/
 
 import React, { Component } from 'react';
-import { View, Image } from 'react-native';
-import { Marker, LatLng } from 'react-native-maps';
+import { View, Text, Image, StyleSheet } from 'react-native';
+import { Marker, LatLng, Callout } from 'react-native-maps';
 import renderIf from 'render-if';
 
 //import { Marker, Popup } from 'react-leaflet';
@@ -50,50 +50,6 @@ class Bus extends Component {
         //  value in our state to force a re-render.
         let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} onLoad={(e) => {this.setState({key: Math.random()})} }></Image>;
 
-        // let icon = L.icon({
-        //     iconUrl: url,
-        //     iconSize: [39, 50],
-        //     iconAnchor: [20, 50],
-        //     popupAnchor: [0, -50]
-        // });
-
-                // <Popup onOpen={this.props.onOpen}
-                //        onClose={this.props.onClose}>
-                //     <table className="Bus-table">
-                //         <tbody>
-                //             <tr>
-                //                 <td className="Bus-header">Route:</td>
-                //                 <td>{this.props.route_name}</td>
-                //             </tr>
-                //             {
-                //                 renderIf(this.props.destination !== '')(
-                //                     <tr>
-                //                         <td className="Bus-header">Destination:</td>
-                //                         <td>{this.props.destination}</td>
-                //                     </tr>
-                //                 )
-                //             }
-                //             {
-                //                 renderIf(this.props.on_board !== '')(
-                //                     <tr>
-                //                         <td className="Bus-header">Riders:</td>
-                //                         <td>{this.props.on_board}</td>
-                //                     </tr>
-                //                 )
-                //             }
-                //             {
-                //                 renderIf(this.props.status !== '')(
-                //                     <tr>
-                //                         <td className="Bus-header">Status:</td>
-                //                         <td>{this.props.status} ({this.props.deviation} minutes)</td>
-                //                     </tr>
-                //                 )
-                //             }
-                //         </tbody>
-                //     </table>
-                // </Popup>
-
-
         let coordinate = {latitude: this.props.position[0],
                           longitude: this.props.position[1]};
         
@@ -101,10 +57,65 @@ class Bus extends Component {
             <Marker coordinate={coordinate}>
                 <View renderKey={this.state.key}>
                     {icon}
+                    <Callout style={styles.callout}>
+                        <View style={styles.row}>
+                            <Text style={styles.header}>Route:</Text>
+                            <Text style={styles.data}>{this.props.route_name}</Text>
+                        </View>
+                        {
+                            renderIf(this.props.destination !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>Destination:</Text>
+                                    <Text style={styles.data}>{this.props.destination}</Text>
+                                </View>
+                            )
+                        }
+                        {
+                            renderIf(this.props.on_board !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>Riders:</Text>
+                                    <Text style={styles.data}>{this.props.on_board}</Text>
+                                </View>
+                            )
+                        }
+                        {
+                            renderIf(this.props.status !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>status:</Text>
+                                    <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
+                                </View>
+                            )
+                        }
+                    </Callout>
                 </View>
             </Marker>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    callout: {
+        width: 250
+    },
+    row: {
+        flexDirection: 'row',
+        flex: 1,
+        borderWidth: 0,
+        padding: 2,
+        justifyContent: 'space-around'
+    },
+    header: {
+        flex: 1,
+        borderWidth: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    data: {
+        flex: 2,
+        borderWidth: 0,
+        alignItems: 'center',
+        justifyContent: 'center'        
+    }
+});
 
 export default Bus;
