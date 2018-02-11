@@ -21,7 +21,6 @@ import MapView from 'react-native-maps';
 
 import Configuration from './Configuration';
 import Route from './Route';
-//import BaseMap from './BaseMap';
 //import AgencyList from './AgencyList';
 import LocalStorage from './LocalStorage';
 
@@ -162,7 +161,6 @@ class RouteContainer extends Component {
     }
 
     onBoundsChanged = (region) => {
-        console.log(`onBoundsChanged ${JSON.stringify(region)}`);
         this.bounds = {
             "_southWest": {"lat": region.latitude - region.latitudeDelta,
                            "lng": region.longitude - region.longitudeDelta},

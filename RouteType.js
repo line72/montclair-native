@@ -13,8 +13,8 @@
  *******************************************/
 
 import axios from 'axios';
-//import toGeoJSON from '@mapbox/togeojson';
-//import L from 'leaflet';
+import { DOMParser } from 'xmldom';
+import toGeoJSON from 'togeojson';
 
 class RouteType {
     constructor({id, number, name, color, kml, polyline}) {
@@ -32,12 +32,13 @@ class RouteType {
 
     async getPath() {
         if (this.kml != null) {
-            // return axios.get(this.kml).then((response) => {
-            //     let xml = new DOMParser().parseFromString(response.data, 'text/xml');
-            //     return toGeoJSON.kml(xml);
-            // });
-            return new Promise((resolve, reject) => {
-                resolve(null);
+            return axios.get(this.kml).then((response) => {
+                console.log(`paring xml ${response.data}`);
+                let xml = new DOMParser().parseFromString(response.data, 'text/xml');
+                console.log(`converting to geojson`);
+                let geo = toGeoJSON.kml(xml);
+                console.log(`geo=${JSON.stringify(geo)}`);
+                return null;
             });
         } else if (this.polyline != null) {
             return new Promise((resolve, reject) => {
