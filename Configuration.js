@@ -23,7 +23,7 @@ class Configuration {
         //this.transloc_key = 'EBUqHaBMf8msh0vxh6RM7YrP1Gf2p1NeBAbjsnFMIxnQPib2SB';
 
         // Birmingham, AL
-        this.center = [33.5084801, -86.8006611];
+        //this.center = [33.5084801, -86.8006611];
 
         // this.agencies = [
         //     {

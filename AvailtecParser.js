@@ -38,6 +38,9 @@ class AvailtecParser {
             }, {});
 
             return routes;
+        }).catch((e) => {
+            console.log(`AvailtecParer::getRoutes: Exception when fetching routes: ${JSON.stringify(e)})`);
+            return {};
         });
     }
 
