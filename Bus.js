@@ -13,7 +13,7 @@
  *******************************************/
 
 import React, { Component } from 'react';
-import { Image } from 'react-native';
+import { View, Image } from 'react-native';
 import { Marker, LatLng } from 'react-native-maps';
 import renderIf from 'render-if';
 
@@ -23,9 +23,32 @@ import renderIf from 'render-if';
 //import './Bus.css';
 
 class Bus extends Component {
+    constructor(props) {
+        super(props);
+
+        // !mwd - This is a bit of a hack
+        //  Our Image takes a while to fetch
+        //   and the map doesn't automatically
+        //   render the updated image upon finishing.
+        //  So, we have a key in our state, and after
+        //   we have fetched the updated icon, we set
+        //   the key to a random value, causing a
+        //   state change.
+        this.state = {
+            key: 0
+        };
+    }
+
     render() {
+        // url of our icon
         const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
-        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} />;
+
+        // create an image from the url.
+        // Note that it may take a moment to download, so
+        //  the initial image may be wrong.
+        // Once this finishes loading, we will set a random
+        //  value in our state to force a re-render.
+        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} onLoad={(e) => {this.setState({key: Math.random()})} }></Image>;
 
         // let icon = L.icon({
         //     iconUrl: url,
@@ -75,8 +98,10 @@ class Bus extends Component {
                           longitude: this.props.position[1]};
         
         return (
-            <Marker coordinate={coordinate}
-                    image={icon}>
+            <Marker coordinate={coordinate}>
+                <View renderKey={this.state.key}>
+                    {icon}
+                </View>
             </Marker>
         );
     }
