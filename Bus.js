@@ -47,9 +47,12 @@ class Bus extends Component {
 
         let coordinate = {latitude: this.props.position[0],
                           longitude: this.props.position[1]};
-        
+
         return (
-            <Marker coordinate={coordinate}>
+            <Marker coordinate={coordinate}
+                    onPress={this.props.onOpen}
+                    onCalloutPress={this.props.onClose}
+                >
                 <View renderKey={this.state.key}>
                     {icon}
                     <Callout style={styles.callout}>
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
         flex: 2,
         borderWidth: 0,
         alignItems: 'center',
-        justifyContent: 'center'        
+        justifyContent: 'center'
     }
 });
 
