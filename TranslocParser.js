@@ -53,8 +53,6 @@ class TranslocParser {
                             return lat_lng;
                         }
                     });
-                    // flatten the polyline
-                    polyline = Array.prototype.concat.apply([], polyline);
 
                     acc[route.route_id] = new RouteType({
                         id: route.route_id,

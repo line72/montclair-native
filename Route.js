@@ -75,17 +75,22 @@ class Route extends Component {
         });
 
         if (this.state.polyline != null) {
-            console.log(`have polyline`);
-            let coordinates = this.state.polyline.map(([lat, lng]) => {
-                return {latitude: lat, longitude: lng};
+            let polylines = this.state.polyline.map((p, i) => {
+                let coordinates = p.map(([lat, lng]) => {
+                    return {latitude: lat, longitude: lng};
+                });
+                return (
+                    <Polyline
+                        key={this.props.id + "_" + i}
+                        coordinates={coordinates}
+                        strokeColor={style.strokeColor}
+                        strokeWidth={style.strokeWidth} />
+                );
             });
 
             return (
                 <View>
-                    <Polyline
-                        coordinates={coordinates}
-                        strokeColor={style.strokeColor}
-                        strokeWidth={style.strokeWidth} />
+                    {polylines}
                     {buses}
                 </View>
             );
