@@ -14,36 +14,31 @@
 
 import React, { Component } from 'react';
 import { View } from 'react-native';
-import { Marker } from 'react-native-maps';
-//import { GeoJSON } from 'react-leaflet';
-import Bus from './Bus';
+import { Marker, Polyline } from 'react-native-maps';
 
+import Bus from './Bus';
 
 class Route extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            geojson: null,
+            polyline: null,
             selected: false
         };
 
         // fetch the kml
-        this.props.route.getPath().then((geojson) => {
+        this.props.route.getPath().then((polyline) => {
             this.setState({
-                geojson: geojson
+                polyline: polyline
             });
         });
     }
 
     render() {
-        let style = () => {
-            let w = this.state.selected ? 7 : 1;
-
-            return {
-                color: `#${this.props.color}`,
-                weight: w
-            };
+        let style = {
+            strokeColor: `#${this.props.color}`,
+            strokeWidth: this.state.selected ? 7 : 1
         };
 
         let buses = this.props.vehicles.map((vehicle, index) => {
@@ -79,22 +74,24 @@ class Route extends Component {
 
         });
 
-        // if (this.state.geojson != null) {
-        //     return (
-        //         <div>
-        //             <GeoJSON
-        //                 data={this.state.geojson}
-        //                 style={style} />
-        //             {buses}
-        //         </div>
-        //     );
-        // } else {
-        //     return (<div>{buses}</div>);
-        // }
+        if (this.state.polyline != null) {
+            console.log(`have polyline`);
+            let coordinates = this.state.polyline.map(([lat, lng]) => {
+                return {latitude: lat, longitude: lng};
+            });
 
-        return (
-            <View>{buses}</View>
-        );
+            return (
+                <View>
+                    <Polyline
+                        coordinates={coordinates}
+                        strokeColor={style.strokeColor}
+                        strokeWidth={style.strokeWidth} />
+                    {buses}
+                </View>
+            );
+        } else {
+            return (<View>{buses}</View>);
+        }
     }
 }
 

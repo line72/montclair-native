@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "immutability-helper": "^2.6.4",
+    "polyline-encoded": "0.0.8",
     "react": "16.0.0",
     "react-native": "0.51.0",
     "react-native-maps": "^0.20.0",

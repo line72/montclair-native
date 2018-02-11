@@ -13,7 +13,7 @@
  *******************************************/
 
 import axios from 'axios';
-//import polyUtil from 'polyline-encoded';
+import polyUtil from 'polyline-encoded';
 
 import RouteType from './RouteType';
 import VehicleType from './VehicleType';
@@ -45,15 +45,16 @@ class TranslocParser {
                 let routes = route_data.reduce((acc, route) => {
                     // build out the segments
                     // !mwd - TODO
-                    let polyline = []
-                    // let polyline = route.segments.map((segment) => {
-                    //     let lat_lng = polyUtil.decode(segments[segment[0]]);
-                    //     if (segment[1] === "backward") {
-                    //         return lat_lng.reverse();
-                    //     } else {
-                    //         return lat_lng;
-                    //     }
-                    // });
+                    let polyline = route.segments.map((segment) => {
+                        let lat_lng = polyUtil.decode(segments[segment[0]]);
+                        if (segment[1] === "backward") {
+                            return lat_lng.reverse();
+                        } else {
+                            return lat_lng;
+                        }
+                    });
+                    // flatten the polyline
+                    polyline = Array.prototype.concat.apply([], polyline);
 
                     acc[route.route_id] = new RouteType({
                         id: route.route_id,

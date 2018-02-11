@@ -31,25 +31,23 @@ class RouteType {
     }
 
     async getPath() {
-        return new Promise((resolve, reject) => {
-            resolve(null);
-        });
-        // if (this.kml != null) {
-        //     return axios.get(this.kml).then((response) => {
-        //         let xml = new DOMParser().parseFromString(response.data, 'text/xml');
-        //         return toGeoJSON.kml(xml);
-        //     });
-        // } else if (this.polyline != null) {
-        //     return new Promise((resolve, reject) => {
-        //         const l = L.polyline(this.polyline);
-
-        //         resolve(l.toGeoJSON());
-        //     });
-        // } else {
-        //     return new Promise((resolve, reject) => {
-        //         resolve(null);
-        //     });
-        // }
+        if (this.kml != null) {
+            // return axios.get(this.kml).then((response) => {
+            //     let xml = new DOMParser().parseFromString(response.data, 'text/xml');
+            //     return toGeoJSON.kml(xml);
+            // });
+            return new Promise((resolve, reject) => {
+                resolve(null);
+            });
+        } else if (this.polyline != null) {
+            return new Promise((resolve, reject) => {
+                resolve(this.polyline);
+            });
+        } else {
+            return new Promise((resolve, reject) => {
+                resolve(null);
+            });
+        }
     }
 }
 
