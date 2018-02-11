@@ -17,11 +17,6 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { Marker, LatLng, Callout } from 'react-native-maps';
 import renderIf from 'render-if';
 
-//import { Marker, Popup } from 'react-leaflet';
-//import L from 'leaflet';
-
-//import './Bus.css';
-
 class Bus extends Component {
     constructor(props) {
         super(props);
