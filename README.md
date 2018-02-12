@@ -28,5 +28,9 @@ For running on Android:
 
 For running on iOS:
 
-`react-native run-ios`
+```
+cd ios
+pod install
+react-native run-ios
+```
 
