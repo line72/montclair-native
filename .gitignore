@@ -62,4 +62,4 @@ ios/Pods/
 ios/montclair.xcworkspace/
 
 # Ignore our Configuration
-./Configuration.js
+Configuration.js
