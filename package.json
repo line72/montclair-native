@@ -7,14 +7,20 @@
     "test": "jest"
   },
   "dependencies": {
-    "react": "16.2.0",
-    "react-native": "0.53.0"
+    "axios": "^0.17.1",
+    "immutability-helper": "^2.6.4",
+    "polyline-encoded": "0.0.8",
+    "react": "16.0.0",
+    "react-native": "0.51.0",
+    "react-native-maps": "^0.20.0",
+    "render-if": "^0.1.1",
+    "togeojson": "git://github.com:line72/togeojson.git#v0.16.1"
   },
   "devDependencies": {
     "babel-jest": "22.1.0",
     "babel-preset-react-native": "4.0.0",
     "jest": "22.2.2",
-    "react-test-renderer": "16.2.0"
+    "react-test-renderer": "16.0.0"
   },
   "jest": {
     "preset": "react-native"
