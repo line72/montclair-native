@@ -222,6 +222,7 @@ class RouteContainer extends Component {
                 style={styles.map}
                 initialRegion={region}
                 onRegionChangeComplete={this.onBoundsChanged}
+                rotateEnabled={false}
                 >
                 {routes}
             </MapView>
