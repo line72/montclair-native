@@ -53,7 +53,6 @@ class RouteContainer extends Component {
 
 
         this.getRoutes().then((results) => {
-            console.log(`Got routes ${JSON.stringify(results)}`);
             // setup a timer to fetch the vehicles
             this.getVehicles();
             setInterval(() => {this.getVehicles();}, 10000);
@@ -98,7 +97,6 @@ class RouteContainer extends Component {
 
             // update our agency
             return a.parser.getVehicles(this.bounds).then((vehicle_map) => {
-                console.log(`got vehicles: ${JSON.stringify(vehicle_map)}`);
                 let routes = Object.keys(vehicle_map).reduce((acc, route_id) => {
                     if (a.routes[route_id] && a.routes[route_id].visible) {
                         let vehicles = vehicle_map[route_id];
