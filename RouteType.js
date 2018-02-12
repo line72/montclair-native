@@ -15,6 +15,7 @@
 import axios from 'axios';
 import { DOMParser } from 'xmldom';
 import toGeoJSON from 'togeojson';
+import GeoJSON from './GeoJSON';
 
 class RouteType {
     constructor({id, number, name, color, kml, polyline}) {
@@ -33,12 +34,14 @@ class RouteType {
     async getPath() {
         if (this.kml != null) {
             return axios.get(this.kml).then((response) => {
-                console.log(`paring xml ${response.data}`);
                 let xml = new DOMParser().parseFromString(response.data, 'text/xml');
-                console.log(`converting to geojson`);
                 let geo = toGeoJSON.kml(xml);
-                console.log(`geo=${JSON.stringify(geo)}`);
-                return null;
+
+                // convert to a polyline
+                let geojson = new GeoJSON(geo);
+                let polyline = geojson.toPolyline();
+
+                return polyline;
             });
         } else if (this.polyline != null) {
             return new Promise((resolve, reject) => {

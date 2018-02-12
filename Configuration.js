@@ -49,23 +49,23 @@ class Configuration {
         //     },
         // ]
 
-        // // Grand Rapids, MI
-        // this.center = [42.956337, -85.7301293];
-        // this.agencies = [
-        //     {
-        //         name: 'Grand Rapids',
-        //         parser: new AvailtecParser('http://connect.ridetherapid.org/InfoPoint')
-        //     },
-        // ]
-
-        // Akron, OH
-        this.center = [41.0780764, -81.5036268];
+        // Grand Rapids, MI
+        this.center = [42.956337, -85.7301293];
         this.agencies = [
             {
-                name: 'Akron',
-                parser: new AvailtecParser('https://realtimemetro.availtec.com/InfoPoint')
+                name: 'Grand Rapids',
+                parser: new AvailtecParser('http://connect.ridetherapid.org/InfoPoint')
             },
-        ];
+        ]
+
+        // // Akron, OH
+        // this.center = [41.0780764, -81.5036268];
+        // this.agencies = [
+        //     {
+        //         name: 'Akron',
+        //         parser: new AvailtecParser('https://realtimemetro.availtec.com/InfoPoint')
+        //     },
+        // ];
     }
 }
 
