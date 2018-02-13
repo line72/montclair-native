@@ -38,7 +38,7 @@ class Route extends Component {
     render() {
         let style = {
             strokeColor: `#${this.props.color}`,
-            strokeWidth: this.state.selected ? 7 : 1
+            strokeWidth: 7
         };
 
         let buses = this.props.vehicles.map((vehicle, index) => {
@@ -74,7 +74,7 @@ class Route extends Component {
 
         });
 
-        if (this.state.polyline != null) {
+        if (this.state.polyline != null && this.state.selected) {
             let polylines = this.state.polyline.map((p, i) => {
                 let coordinates = p.map(([lat, lng]) => {
                     return {latitude: lat, longitude: lng};
