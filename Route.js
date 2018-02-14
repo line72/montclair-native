@@ -24,7 +24,6 @@ class Route extends Component {
 
         this.state = {
             polyline: null,
-            selected: false
         };
 
         // fetch the kml
@@ -43,16 +42,10 @@ class Route extends Component {
 
         let buses = this.props.vehicles.map((vehicle, index) => {
             let onOpen = () => {
-                this.setState({
-                    selected: true
-                });
+                if (this.props.onPress) {
+                    this.props.onPress(this);
+                }
             }
-            let onClose = () => {
-                this.setState({
-                    selected: false
-                });
-            }
-
             let route_name = `${this.props.number} - ${this.props.name}`;
 
             return (
@@ -68,13 +61,12 @@ class Route extends Component {
                      deviation={vehicle.deviation}
                      color={this.props.color}
                      onOpen={onOpen}
-                     onClose={onClose}
                      />
             );
 
         });
 
-        if (this.state.polyline != null && this.state.selected) {
+        if (this.state.polyline != null && this.props.selected) {
             let polylines = this.state.polyline.map((p, i) => {
                 let coordinates = p.map(([lat, lng]) => {
                     return {latitude: lat, longitude: lng};

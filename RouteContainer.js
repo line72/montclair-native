@@ -167,6 +167,34 @@ class RouteContainer extends Component {
         };
     }
 
+    onMapPress = (coordinate) => {
+        let updated_agencies = this.state.agencies.map((agency) => {
+            let updated_routes = Object.keys(agency.routes).reduce((acc, key) => {
+                let route = agency.routes[key];
+
+                const a = update(acc, {[key]:
+                                       {selected: {$set: false}}});
+                return a;
+            }, agency.routes);
+            return update(agency, {routes: {$set: updated_routes}});
+        });
+
+        this.setState({
+            agencies: updated_agencies
+        });
+    }
+
+    onRoutePress = (agency, route) => {
+        let i = this.state.agencies.findIndex((e) => {return e.name === agency.name});
+
+        let a = update(agency, {routes: {[route.id]: {selected: {$set: true}}}});
+        let agencies = update(this.state.agencies, {[i]: {$set: a}});
+
+        this.setState({
+            agencies: agencies
+        });
+    }
+
     render() {
         let routes_list = this.state.agencies.map((agency) => {
             if (!agency.visible) {
@@ -188,6 +216,7 @@ class RouteContainer extends Component {
                            selected={route.selected}
                            color={route.color}
                            vehicles={route.vehicles}
+                           onPress={(r) => { this.onRoutePress(agency, route); }}
                            />
                 );
             });
@@ -220,6 +249,7 @@ class RouteContainer extends Component {
                 style={styles.map}
                 initialRegion={region}
                 onRegionChangeComplete={this.onBoundsChanged}
+                onPress={this.onMapPress}
                 rotateEnabled={false}
                 >
                 {routes}
