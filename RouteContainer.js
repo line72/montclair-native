@@ -59,6 +59,10 @@ class RouteContainer extends Component {
         this.interval = setInterval(() => {this.getVehicles();}, 10000);
 
         this.getRoutes().then((results) => {
+            this.setState({
+                ready: true
+            });
+
             // setup a timer to fetch the vehicles
             this.getVehicles();
         });
