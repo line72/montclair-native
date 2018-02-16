@@ -55,7 +55,6 @@ class RouteContainer extends Component {
                 longitudeDelta: 0.0421
             }
         };
-
     }
 
     componentDidMount() {
@@ -111,6 +110,7 @@ class RouteContainer extends Component {
     }
 
     getVehicles() {
+        // wait until we have routes.
         if (!this.state.ready) {
             return false;
         }
