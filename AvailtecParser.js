@@ -58,8 +58,6 @@ class AvailtecParser {
 
         return axios.get(url).then((response) => {
             return response.data.reduce((acc, route) => {
-                const route_type = acc.routes.get(route.RouteId);
-
                 return route.Vehicles.map((vehicle, i) => {
                     return this.parseVehicle(route, vehicle);
                 }).filter((v) => {
@@ -77,6 +75,8 @@ class AvailtecParser {
                         return false;
                     }
                 }).reduce((acc2, v) => {
+                    const route_type = acc2.routes.get(route.RouteId);
+
                     return AgencyType.addVehicle(acc2, route_type, v);
                 }, acc);
             }, a);
