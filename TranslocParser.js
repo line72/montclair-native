@@ -15,6 +15,7 @@
 import axios from 'axios';
 import polyUtil from 'polyline-encoded';
 
+import AgencyType from './AgencyType';
 import RouteType from './RouteType';
 import VehicleType from './VehicleType';
 
@@ -30,7 +31,12 @@ class TranslocParser {
         });
     }
 
-    getRoutes() {
+    /**
+     * Get all the routes for an agency.
+     *
+     * This returns a new, updated AgencyType object.
+     */
+    getRoutes(agency) {
         // first get the segments so we can build our route paths
         let url = `/segments.json?agencies=${this.agency_id}`;
         return this.requestor.get(url).then((response) => {
@@ -42,7 +48,7 @@ class TranslocParser {
                 let route_data = response.data.data[this.agency_id]
 
                 // parse it
-                let routes = route_data.reduce((acc, route) => {
+                return route_data.reduce((acc, route) => {
                     // build out the segments
                     // !mwd - TODO
                     let polyline = route.segments.map((segment) => {
@@ -54,23 +60,24 @@ class TranslocParser {
                         }
                     });
 
-                    acc[route.route_id] = new RouteType({
+                    return AgencyType.addRoute(acc, RouteType.T({
                         id: route.route_id,
                         number: route.short_name,
                         name: route.long_name,
                         color: route.color,
                         polyline: polyline
-                    });
-
-                    return acc;
-                }, {});
-
-                return routes;
+                    }));
+                }, agency);
             });
         });
     }
 
-    getVehicles(bounds) {
+    /**
+     * Get all the vehicles for all routes in an agency (within a bounds).
+     *
+     * This returns a new, updated AgencyType object.
+     */
+    getVehicles(agency, bounds) {
         let url = `/vehicles.json?agencies=${this.agency_id}`;
 
         if (bounds != null) {
@@ -85,10 +92,12 @@ class TranslocParser {
         }
 
         return this.requestor.get(url).then((response) => {
+            // clear out all the vehicles
+            const a = AgencyType.clearRoutes(agency);
             let vehicle_data = response.data.data[this.agency_id] || []
 
             return vehicle_data.reduce((acc, vehicle) => {
-                let v = new VehicleType({
+                let v = VehicleType.T({
                     id: vehicle.vehicle_id,
                     position: [vehicle.location.lat, vehicle.location.lng],
                     heading: vehicle.heading,
@@ -97,14 +106,9 @@ class TranslocParser {
                     route_id: vehicle.route_id
                 });
 
-                if (v.route_id in acc) {
-                    acc[v.route_id].push(v);
-                } else {
-                    acc[v.route_id] = [v];
-                }
-
-                return acc;
-            }, {});
+                const route = acc.routes.get(vehicle.route_id);
+                return AgencyType.addVehicle(acc, route, v);
+            }, a);
         });
     }
 }

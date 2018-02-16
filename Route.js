@@ -18,6 +18,8 @@ import { Marker, Polyline } from 'react-native-maps';
 
 import Bus from './Bus';
 
+import RouteType from './RouteType';
+
 class Route extends Component {
     constructor(props) {
         super(props);
@@ -28,7 +30,7 @@ class Route extends Component {
         };
 
         // fetch the kml
-        this.props.route.getPath().then((polyline) => {
+        RouteType.getPath(this.props.route).then((polyline) => {
             this.setState({
                 polyline: polyline
             });
@@ -41,7 +43,7 @@ class Route extends Component {
             strokeWidth: this.state.selected ? 7 : 1
         };
 
-        let buses = this.props.vehicles.map((vehicle, index) => {
+        let buses = this.props.vehicles.toList().map((vehicle) => {
             let onOpen = () => {
                 this.setState({
                     selected: true

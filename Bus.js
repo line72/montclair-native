@@ -56,7 +56,6 @@ class Bus extends Component {
                     onCalloutPress={this.props.onClose}
                 >
                 <View renderKey={this.state.key}>
-                    {icon}
                     <Callout style={styles.callout}>
                         <View style={styles.row}>
                             <Text style={styles.header}>Route:</Text>

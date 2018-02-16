@@ -25,6 +25,8 @@ import Route from './Route';
 //import AgencyList from './AgencyList';
 import LocalStorage from './LocalStorage';
 
+import AgencyType from './AgencyType';
+
 class RouteContainer extends Component {
     constructor() {
         super();
@@ -32,10 +34,9 @@ class RouteContainer extends Component {
         let configuration = new Configuration();
 
         let agencies = configuration.agencies.reduce((acc, a) => {
-            return acc.set(a.name, Immutable.Map({name: a.name,
-                                                  visible: true,
-                                                  parser: a.parser,
-                                                  routes: Immutable.Map({})})
+            return acc.set(a.name, AgencyType.T({name: a.name,
+                                                 visible: true,
+                                                 parser: a.parser})
                           );
         }, Immutable.Map({}));
 
@@ -61,15 +62,15 @@ class RouteContainer extends Component {
         // setup a timer to fetch the vehicles
         this.interval = setInterval(() => {this.getVehicles();}, 10000);
 
-        this.getRoutes().then((agency_list) => {
-            const agencies = agency_list.reduce((acc, agency) => {
-                return acc.set(agency.get('name'), agency);
+        this.getRoutes().then((agencies) => {
+            const updated_agencies = agencies.reduce((acc, agency) => {
+                return acc.set(agency.name, agency);
             }, this.state.agencies);
 
             // update the state
             this.setState({
                 ready: true,
-                agencies: agencies
+                agencies: updated_agencies
             });
 
             // do an immediate fetch
@@ -85,29 +86,26 @@ class RouteContainer extends Component {
     }
 
     getRoutes() {
-        let promises = this.state.agencies.toList().map((agency) => {
+        let promises = this.state.agencies.map((agency) => {
             agency = agency.set('visible', this.storage.isAgencyVisible(agency));
 
             return new Promise((resolve, reject) => {
-                agency.get('parser').getRoutes().then((routes) => {
+                agency.get('parser').getRoutes(agency).then((a) => {
                     // the visibility is stored offline in local storage,
                     //  restore it.
-                    const r = Object.keys(routes).reduce((acc, key) => {
-                        let route = routes[key];
-
-                        route.visible = this.storage.isRouteVisible(agency, route);
-                        return acc.set(key, Immutable.fromJS(route));
-                    }, Immutable.Map({}));
+                    const routes = a.routes.map((route) => {
+                        return route.set('visible', this.storage.isRouteVisible(agency, route));
+                    });
 
                     // update the agency without mutating the original
-                    const a1 = agency.set('routes', r)
+                    const a1 = a.set('routes', routes);
 
                     resolve(a1);
                 }).catch((e) => {
                     reject(e);
                 });
             });
-        }).toJS();
+        }).toList().toJS();
 
         return axios.all(promises);
     }
@@ -117,49 +115,26 @@ class RouteContainer extends Component {
             return false;
         }
 
-        let promises = this.state.agencies.toList().map((agency) => {
+        let promises = this.state.agencies.map((agency) => {
             return new Promise((resolve, reject) => {
                 if (!agency.get('visible')) {
                     resolve(agency);
                 } else {
                     // update the vehicles in the agency
-                    agency.get('parser').getVehicles(this.bounds).then((vehicle_map) => {
-                        let routes = Object.keys(vehicle_map).reduce((acc, route_id) => {
-                            if (acc.get(route_id) && acc.get(route_id).visible) {
-
-                                let vehicles = vehicle_map[route_id];
-                                // sort vehicles based on id
-                                vehicles.sort((a, b) => { return a.id <= b.id; });
-
-                                // update the route's vehicles
-                                let v = acc.get(route_id).vehicles;
-
-                                const c = Immutable.fromJS(update(acc.toJS(),
-                                                                  {[route_id]:
-                                                                   {vehicles:
-                                                                    {$set: vehicles}}}));
-                                return c;
-                            } else {
-                                return acc;
-                            }
-                        }, agency.get('routes'));
-
-                        const updated_agency = agency.set('routes', routes);
-
+                    agency.get('parser').getVehicles(agency, this.bounds).then((updated_agency) => {
                         resolve(updated_agency);
                     });
                 }
             });
-        }).toJS();
+        }).toList().toJS();
 
-        return axios.all(promises).then((results) => {
-            const agencies = results.reduce((acc, agency) => {
-                return acc.set(agency.get('name'), agency);
+        return axios.all(promises).then((agencies) => {
+            const updated_agencies = agencies.reduce((acc, agency) => {
+                return acc.set(agency.name, agency);
             }, this.state.agencies);
 
-
             this.setState({
-                agencies: agencies
+                agencies: updated_agencies
             });
         });
     }
@@ -199,7 +174,7 @@ class RouteContainer extends Component {
     }
 
     render() {
-        let routes = this.state.agencies.toList().map((agency) => {
+        let routes = this.state.agencies.toList().flatMap((agency) => {
             if (!agency.get('visible')) {
                 return [];
             }
@@ -221,9 +196,6 @@ class RouteContainer extends Component {
                 );
             });
         });
-        console.log(`routes=${routes}`);
-        // flatten
-        //let routes = Array.prototype.concat.apply([], routes_list);
 
     //     return ([
     //             <AgencyList key="agency-list" agencies={this.state.agencies} onAgencyClick={(agency) => this.toggleAgency(agency) } onRouteClick={(agency, route) => this.toggleRoute(agency, route) } />,

@@ -12,47 +12,51 @@
  * Licensed Under the GPLv3
  *******************************************/
 
+import Immutable from 'immutable';
 import axios from 'axios';
 import { DOMParser } from 'xmldom';
 import toGeoJSON from 'togeojson';
 import GeoJSON from './GeoJSON';
 
-class RouteType {
-    constructor({id, number, name, color, kml, polyline}) {
-        this.id = id;
-        this.number = number;
-        this.name = name;
-        this.color = color;
-        this.selected = false;
-        this.kml = kml;
-        this.polyline = polyline;
-        this.visible = true;
+var T = Immutable.Record({id: 0,
+                          number: 0,
+                          name: '',
+                          color: 'ffffff',
+                          selected: false,
+                          visible: true,
+                          kml: null,
+                          polyline: null,
+                          vehicles: Immutable.Map({})});
 
-        this.vehicles = [];
-    }
+function clearVehicles(rt) {
+    return rt.set('vehicles', Immutable.Map({}));
+}
 
-    async getPath() {
-        if (this.kml != null) {
-            return axios.get(this.kml).then((response) => {
-                let xml = new DOMParser().parseFromString(response.data, 'text/xml');
-                let geo = toGeoJSON.kml(xml);
+function addVehicle(rt, vehicle) {
+    return rt.setIn(['vehicles', vehicle.id], vehicle);
+}
 
-                // convert to a polyline
-                let geojson = new GeoJSON(geo);
-                let polyline = geojson.toPolyline();
+async function getPath(rt) {
+    if (rt.kml != null) {
+        return axios.get(rt.kml).then((response) => {
+            let xml = new DOMParser().parseFromString(response.data, 'text/xml');
+            let geo = toGeoJSON.kml(xml);
 
-                return polyline;
-            });
-        } else if (this.polyline != null) {
-            return new Promise((resolve, reject) => {
-                resolve(this.polyline);
-            });
-        } else {
-            return new Promise((resolve, reject) => {
-                resolve(null);
-            });
-        }
+            // convert to a polyline
+            let geojson = new GeoJSON(geo);
+            let polyline = geojson.toPolyline();
+
+            return polyline;
+        });
+    } else if (rt.polyline != null) {
+        return new Promise((resolve, reject) => {
+            resolve(rt.polyline);
+        });
+    } else {
+        return new Promise((resolve, reject) => {
+            resolve(null);
+        });
     }
 }
 
-export default RouteType;
+export default {T, clearVehicles, addVehicle, getPath};
