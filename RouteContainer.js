@@ -37,11 +37,13 @@ class RouteContainer extends Component {
                     routes: {}};
         });
 
+        this.interval = null;
         this.storage = new LocalStorage();
         this.bounds = {"_southWest": {"lat": 33.0, "lng": -87.3},
                        "_northEast": {"lat": 34.0, "lng": -86.0}};
 
         this.state = {
+            ready: false,
             agencies: agencies,
             region: {
                 latitude: configuration.center[0],
@@ -50,13 +52,27 @@ class RouteContainer extends Component {
                 longitudeDelta: 0.0421
             }
         };
+    }
 
+    componentDidMount() {
+        // setup a timer to fetch the vehicles
+        this.interval = setInterval(() => {this.getVehicles();}, 10000);
 
         this.getRoutes().then((results) => {
+            this.setState({
+                ready: true
+            });
+
             // setup a timer to fetch the vehicles
             this.getVehicles();
-            setInterval(() => {this.getVehicles();}, 10000);
         });
+    }
+
+    componentWillUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        this.interval = null;
     }
 
     getRoutes() {
@@ -88,6 +104,11 @@ class RouteContainer extends Component {
     }
 
     getVehicles() {
+        // wait until we have routes.
+        if (!this.state.ready) {
+            return false;
+        }
+
         return axios.all(this.state.agencies.map((a, index) => {
             // if an Agency isn't visible, don't update it
             if (!a.visible) {
