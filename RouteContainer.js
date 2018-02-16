@@ -16,6 +16,7 @@ import React, { Component } from 'react';
 import {StyleSheet} from 'react-native';
 
 import update from 'immutability-helper';
+import Immutable from 'immutable';
 import axios from 'axios';
 import MapView from 'react-native-maps';
 
@@ -30,18 +31,21 @@ class RouteContainer extends Component {
 
         let configuration = new Configuration();
 
-        let agencies = configuration.agencies.map((a) => {
-            return {name: a.name,
-                    visible: true,
-                    parser: a.parser,
-                    routes: {}};
-        });
+        let agencies = configuration.agencies.reduce((acc, a) => {
+            return acc.set(a.name, Immutable.Map({name: a.name,
+                                                  visible: true,
+                                                  parser: a.parser,
+                                                  routes: Immutable.Map({})})
+                          );
+        }, Immutable.Map({}));
 
+        this.interval = null;
         this.storage = new LocalStorage();
         this.bounds = {"_southWest": {"lat": 33.0, "lng": -87.3},
                        "_northEast": {"lat": 34.0, "lng": -86.0}};
 
         this.state = {
+            ready: false,
             agencies: agencies,
             region: {
                 latitude: configuration.center[0],
@@ -51,84 +55,111 @@ class RouteContainer extends Component {
             }
         };
 
+    }
 
-        this.getRoutes().then((results) => {
-            // setup a timer to fetch the vehicles
+    componentDidMount() {
+        // setup a timer to fetch the vehicles
+        this.interval = setInterval(() => {this.getVehicles();}, 10000);
+
+        this.getRoutes().then((agency_list) => {
+            const agencies = agency_list.reduce((acc, agency) => {
+                return acc.set(agency.get('name'), agency);
+            }, this.state.agencies);
+
+            // update the state
+            this.setState({
+                ready: true,
+                agencies: agencies
+            });
+
+            // do an immediate fetch
             this.getVehicles();
-            setInterval(() => {this.getVehicles();}, 10000);
         });
     }
 
+    componentWillUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        this.interval = null;
+    }
+
     getRoutes() {
-        return axios.all(this.state.agencies.map((a, index) => {
-            a.visible = this.storage.isAgencyVisible(a);
+        let promises = this.state.agencies.toList().map((agency) => {
+            agency = agency.set('visible', this.storage.isAgencyVisible(agency));
 
-            return a.parser.getRoutes().then((routes) => {
-                // the visibility is stored offline in local storage,
-                //  restore it.
-                const r = Object.keys(routes).reduce((acc, key) => {
-                    let route = routes[key];
+            return new Promise((resolve, reject) => {
+                agency.get('parser').getRoutes().then((routes) => {
+                    // the visibility is stored offline in local storage,
+                    //  restore it.
+                    const r = Object.keys(routes).reduce((acc, key) => {
+                        let route = routes[key];
 
-                    route.visible = this.storage.isRouteVisible(a, route);
-                    acc[key] = route;
+                        route.visible = this.storage.isRouteVisible(agency, route);
+                        return acc.set(key, Immutable.fromJS(route));
+                    }, Immutable.Map({}));
 
-                    return acc;
-                }, {});
+                    // update the agency without mutating the original
+                    const a1 = agency.set('routes', r)
 
-                // update the agency without mutating the original
-                const agencies = update(this.state.agencies, {[index]: {routes: {$set: r}}});
-
-                this.setState({
-                    agencies: agencies
+                    resolve(a1);
+                }).catch((e) => {
+                    reject(e);
                 });
-
-                return routes;
             });
-        }));
+        }).toJS();
+
+        return axios.all(promises);
     }
 
     getVehicles() {
-        return axios.all(this.state.agencies.map((a, index) => {
-            // if an Agency isn't visible, don't update it
-            if (!a.visible) {
-                return {name: a.name,
-                        routes: a.routes};
-            }
+        if (!this.state.ready) {
+            return false;
+        }
 
-            // update our agency
-            return a.parser.getVehicles(this.bounds).then((vehicle_map) => {
-                let routes = Object.keys(vehicle_map).reduce((acc, route_id) => {
-                    if (a.routes[route_id] && a.routes[route_id].visible) {
-                        let vehicles = vehicle_map[route_id];
-                        // sort vehicles based on id
-                        vehicles.sort((a, b) => { return a.id <= b.id; });
+        let promises = this.state.agencies.toList().map((agency) => {
+            return new Promise((resolve, reject) => {
+                if (!agency.get('visible')) {
+                    resolve(agency);
+                } else {
+                    // update the vehicles in the agency
+                    agency.get('parser').getVehicles(this.bounds).then((vehicle_map) => {
+                        let routes = Object.keys(vehicle_map).reduce((acc, route_id) => {
+                            if (acc.get(route_id) && acc.get(route_id).visible) {
 
-                        // create a new map with the update
-                        //  we like immutability.
-                        const updated_routes = update(acc,
-                                                      {[route_id]:
-                                                       {vehicles:
-                                                        {$set: vehicles}}});
+                                let vehicles = vehicle_map[route_id];
+                                // sort vehicles based on id
+                                vehicles.sort((a, b) => { return a.id <= b.id; });
 
-                        return updated_routes;
-                    } else {
-                        // don't update the state
-                        return acc;
-                    }
-                }, this.state.agencies[index].routes);
+                                // update the route's vehicles
+                                let v = acc.get(route_id).vehicles;
 
-                return {name: a.name,
-                        routes: routes};
+                                const c = Immutable.fromJS(update(acc.toJS(),
+                                                                  {[route_id]:
+                                                                   {vehicles:
+                                                                    {$set: vehicles}}}));
+                                return c;
+                            } else {
+                                return acc;
+                            }
+                        }, agency.get('routes'));
+
+                        const updated_agency = agency.set('routes', routes);
+
+                        resolve(updated_agency);
+                    });
+                }
             });
-        })).then((results) => {
-            let agencies = results.map((r) => {
-                let i = this.state.agencies.findIndex((e) => {return e.name === r.name});
+        }).toJS();
 
-                return update(this.state.agencies, {[i]: {routes: {$set: r.routes}}})[i];
-            });
+        return axios.all(promises).then((results) => {
+            const agencies = results.reduce((acc, agency) => {
+                return acc.set(agency.get('name'), agency);
+            }, this.state.agencies);
+
 
             this.setState({
-               agencies: agencies
+                agencies: agencies
             });
         });
     }
@@ -168,13 +199,11 @@ class RouteContainer extends Component {
     }
 
     render() {
-        let routes_list = this.state.agencies.map((agency) => {
-            if (!agency.visible) {
+        let routes = this.state.agencies.toList().map((agency) => {
+            if (!agency.get('visible')) {
                 return [];
             }
-            return Object.keys(agency.routes).map((key) => {
-                let route = agency.routes[key];
-
+            return agency.get('routes').toList().map((route) => {
                 if (!route.visible) {
                     return (null);
                 }
@@ -192,8 +221,9 @@ class RouteContainer extends Component {
                 );
             });
         });
+        console.log(`routes=${routes}`);
         // flatten
-        let routes = Array.prototype.concat.apply([], routes_list);
+        //let routes = Array.prototype.concat.apply([], routes_list);
 
     //     return ([
     //             <AgencyList key="agency-list" agencies={this.state.agencies} onAgencyClick={(agency) => this.toggleAgency(agency) } onRouteClick={(agency, route) => this.toggleRoute(agency, route) } />,

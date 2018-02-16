@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "immutability-helper": "^2.6.4",
+    "immutable": "^3.8.2",
     "polyline-encoded": "0.0.8",
     "react": "16.0.0",
     "react-native": "0.51.0",
@@ -23,6 +24,9 @@
     "react-test-renderer": "16.0.0"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "setupFiles": [
+      "./test.setup.js"
+    ]
   }
 }

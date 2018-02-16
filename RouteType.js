@@ -28,7 +28,7 @@ class RouteType {
         this.polyline = polyline;
         this.visible = true;
 
-        this.vehicles = []
+        this.vehicles = [];
     }
 
     async getPath() {
