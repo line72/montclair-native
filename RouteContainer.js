@@ -13,12 +13,12 @@
  *******************************************/
 
 import React, { Component } from 'react';
-import {StyleSheet} from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import update from 'immutability-helper';
 import Immutable from 'immutable';
 import axios from 'axios';
-import MapView from 'react-native-maps';
+import MapboxGL from '@mapbox/react-native-mapbox-gl';
 
 import Configuration from './Configuration';
 import Route from './Route';
@@ -27,11 +27,14 @@ import LocalStorage from './LocalStorage';
 
 import AgencyType from './AgencyType';
 
+const IS_ANDROID = Platform.OS === 'android';
+
 class RouteContainer extends Component {
     constructor() {
         super();
 
         let configuration = new Configuration();
+        MapboxGL.setAccessToken(configuration.mapbox_key);
 
         let agencies = configuration.agencies.reduce((acc, a) => {
             return acc.set(a.name, AgencyType.T({name: a.name,
@@ -46,36 +49,43 @@ class RouteContainer extends Component {
                        "_northEast": {"lat": 34.0, "lng": -86.0}};
 
         this.state = {
+            isFetchingAndroidPermission: IS_ANDROID,
+            isAndroidPermissionGranted: false,
             ready: false,
             agencies: agencies,
-            region: {
-                latitude: configuration.center[0],
-                longitude: configuration.center[1],
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421
-            }
+            region: [configuration.center[1], configuration.center[0]]
         };
     }
 
-    componentDidMount() {
-        // setup a timer to fetch the vehicles
-        this.interval = setInterval(() => {this.getVehicles();}, 10000);
-
-        this.getRoutes().then((agencies) => {
-            const updated_agencies = agencies.reduce((acc, agency) => {
-                return acc.set(agency.name, agency);
-            }, this.state.agencies);
-
-            // update the state
+    async componentWillMount() {
+        if (IS_ANDROID) {
+            const isGranted = await MapboxGL.requestAndroidLocationPermissions();
             this.setState({
-                ready: true,
-                agencies: updated_agencies
+                isAndroidPermissionGranted: isGranted,
+                isFetchingAndroidPermission: false,
             });
-
-            // do an immediate fetch
-            this.getVehicles();
-        });
+        }
     }
+
+    // componentDidMount() {
+    //     // setup a timer to fetch the vehicles
+    //     this.interval = setInterval(() => {this.getVehicles();}, 10000);
+
+    //     this.getRoutes().then((agencies) => {
+    //         const updated_agencies = agencies.reduce((acc, agency) => {
+    //             return acc.set(agency.name, agency);
+    //         }, this.state.agencies);
+
+    //         // update the state
+    //         this.setState({
+    //             ready: true,
+    //             agencies: updated_agencies
+    //         });
+
+    //         // do an immediate fetch
+    //         this.getVehicles();
+    //     });
+    // }
 
     componentWillUnmount() {
         if (this.interval) {
@@ -165,15 +175,29 @@ class RouteContainer extends Component {
     }
 
     onBoundsChanged = (region) => {
-        this.bounds = {
-            "_southWest": {"lat": region.latitude - region.latitudeDelta,
-                           "lng": region.longitude - region.longitudeDelta},
-            "_northEast": {"lat": region.latitude + region.latitudeDelta,
-                           "lng": region.longitude + region.latitudeDelta}
-        };
+        console.log(`region changed: ${JSON.stringify(region)}`);
+        // this.bounds = {
+        //     "_southWest": {"lat": region.latitude - region.latitudeDelta,
+        //                    "lng": region.longitude - region.longitudeDelta},
+        //     "_northEast": {"lat": region.latitude + region.latitudeDelta,
+        //                    "lng": region.longitude + region.latitudeDelta}
+        // };
     }
 
     render() {
+        if (IS_ANDROID && !this.state.isAndroidPermissionGranted) {
+            if (this.state.isFetchingAndroidPermission) {
+                return null;
+            }
+            return (
+                <View style={sheet.matchParent}>
+                    <Text style={styles.noPermissionsText}>
+                        You need to accept location permissions in order to use this example applications
+                    </Text>
+                </View>
+            );
+        }
+
         let routes = this.state.agencies.toList().flatMap((agency) => {
             if (!agency.get('visible')) {
                 return [];
@@ -218,14 +242,15 @@ class RouteContainer extends Component {
 
         const {region} = this.state;
         return (
-            <MapView
+            <MapboxGL.MapView
                 style={styles.map}
-                initialRegion={region}
-                onRegionChangeComplete={this.onBoundsChanged}
+                centerCoordinate={region}
+                zoomLevel={12}
+                onRegionDidChange={this.onBoundsChanged}
                 rotateEnabled={false}
+                pitchEnabled={false}
                 >
-                {routes}
-            </MapView>
+            </MapboxGL.MapView>
         );
     }
 }
