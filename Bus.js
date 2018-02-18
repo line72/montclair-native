@@ -13,7 +13,7 @@
  *******************************************/
 
 import React, { Component } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { Animated, View, Text, Image, StyleSheet } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import renderIf from 'render-if';
 
@@ -60,54 +60,75 @@ class Bus extends Component {
                 coordinate={coordinate}
                 >
                 {icon}
-                <MapboxGL.Callout title={this.props.route_name} />
+                <MapboxGL.Callout title={this.props.route_name} style={styles.callout}>
+                    <View style={styles.content}>
+                        <View style={styles.row}>
+                            <Text style={styles.header}>Route:</Text>
+                            <Text style={styles.data}>{this.props.route_name}</Text>
+                        </View>
+                        {
+                            renderIf(this.props.destination !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>Destination:</Text>
+                                    <Text style={styles.data}>{this.props.destination}</Text>
+                                </View>
+                            )
+                        }
+                        {
+                            renderIf(this.props.on_board !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>Riders:</Text>
+                                    <Text style={styles.data}>{this.props.on_board}</Text>
+                                </View>
+                            )
+                        }
+                        {
+                            renderIf(this.props.status !== '')(
+                                <View style={styles.row}>
+                                    <Text style={styles.header}>status:</Text>
+                                    <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
+                                </View>
+                            )
+                        }
+                    </View>
+                    <View style={styles.tip} />
+                </MapboxGL.Callout>
+
             </MapboxGL.PointAnnotation>
         );
-        // return (
-        //     <Marker coordinate={coordinate}
-        //             onPress={this.props.onOpen}
-        //             onCalloutPress={this.props.onClose}
-        //         >
-        //         <View renderKey={this.state.key}>
-        //             <Callout style={styles.callout}>
-        //                 <View style={styles.row}>
-        //                     <Text style={styles.header}>Route:</Text>
-        //                     <Text style={styles.data}>{this.props.route_name}</Text>
-        //                 </View>
-        //                 {
-        //                     renderIf(this.props.destination !== '')(
-        //                         <View style={styles.row}>
-        //                             <Text style={styles.header}>Destination:</Text>
-        //                             <Text style={styles.data}>{this.props.destination}</Text>
-        //                         </View>
-        //                     )
-        //                 }
-        //                 {
-        //                     renderIf(this.props.on_board !== '')(
-        //                         <View style={styles.row}>
-        //                             <Text style={styles.header}>Riders:</Text>
-        //                             <Text style={styles.data}>{this.props.on_board}</Text>
-        //                         </View>
-        //                     )
-        //                 }
-        //                 {
-        //                     renderIf(this.props.status !== '')(
-        //                         <View style={styles.row}>
-        //                             <Text style={styles.header}>status:</Text>
-        //                             <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
-        //                         </View>
-        //                     )
-        //                 }
-        //             </Callout>
-        //         </View>
-        //     </Marker>
-        // );
     }
 }
 
 const styles = StyleSheet.create({
     callout: {
-        width: 250
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 250,
+        zIndex: 9999999,
+    },
+    tip: {
+        zIndex: 1000,
+        marginTop: -2,
+        elevation: 0,
+        backgroundColor: 'transparent',
+        borderTopWidth: 16,
+        borderRightWidth: 8,
+        borderBottomWidth: 0,
+        borderLeftWidth: 8,
+        borderTopColor: 'white',
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: 'transparent',
+    },
+    content: {
+        width: 250,
+        position: 'relative',
+        padding: 8,
+        flex: 1,
+        borderRadius: 3,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.2)',
+        backgroundColor: 'white',
     },
     row: {
         flexDirection: 'row',
