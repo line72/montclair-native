@@ -133,7 +133,7 @@ class RouteContainer extends Component {
                     resolve(agency);
                 } else {
                     // update the vehicles in the agency
-                    agency.get('parser').getVehicles(agency, null).then((updated_agency) => {
+                    agency.get('parser').getVehicles(agency, this.bounds).then((updated_agency) => {
                         resolve(updated_agency);
                     });
                 }
