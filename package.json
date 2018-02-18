@@ -7,13 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@mapbox/react-native-mapbox-gl": "^6.0.3",
     "axios": "^0.17.1",
     "immutability-helper": "^2.6.4",
     "immutable": "^3.8.2",
     "polyline-encoded": "0.0.8",
     "react": "16.0.0",
     "react-native": "0.51.0",
-    "react-native-maps": "^0.20.0",
     "render-if": "^0.1.1",
     "togeojson": "git://github.com:line72/togeojson.git#v0.16.1"
   },
