@@ -65,7 +65,6 @@ class TranslocParser {
                         number: route.short_name,
                         name: route.long_name,
                         color: route.color,
-                        polyline: polyline
                     }));
                 }, agency);
             });

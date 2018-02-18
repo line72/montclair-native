@@ -14,7 +14,7 @@
 
 import React, { Component } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { Marker, LatLng, Callout } from 'react-native-maps';
+import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import renderIf from 'render-if';
 
 class Bus extends Component {
@@ -45,50 +45,60 @@ class Bus extends Component {
         // Once this finishes loading, we will set a random
         //  value in our state to force a re-render.
         //let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} onLoad={(e) => {this.setState({key: Math.random()})} }></Image>;
-        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}}></Image>;
+        //let icon = <Image source={{uri: url}} style={{width: 39, height: 50}}></Image>;
 
-        let coordinate = {latitude: this.props.position[0],
-                          longitude: this.props.position[1]};
+        // let coordinate = {latitude: this.props.position[0],
+        //                   longitude: this.props.position[1]};
+        let coordinate = [this.props.position[1], this.props.position[0]];
 
+        console.log(`Bus.render ${JSON.stringify(coordinate)}`);
         return (
-            <Marker coordinate={coordinate}
-                    onPress={this.props.onOpen}
-                    onCalloutPress={this.props.onClose}
-                >
-                <View renderKey={this.state.key}>
-                    <Callout style={styles.callout}>
-                        <View style={styles.row}>
-                            <Text style={styles.header}>Route:</Text>
-                            <Text style={styles.data}>{this.props.route_name}</Text>
-                        </View>
-                        {
-                            renderIf(this.props.destination !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>Destination:</Text>
-                                    <Text style={styles.data}>{this.props.destination}</Text>
-                                </View>
-                            )
-                        }
-                        {
-                            renderIf(this.props.on_board !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>Riders:</Text>
-                                    <Text style={styles.data}>{this.props.on_board}</Text>
-                                </View>
-                            )
-                        }
-                        {
-                            renderIf(this.props.status !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>status:</Text>
-                                    <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
-                                </View>
-                            )
-                        }
-                    </Callout>
-                </View>
-            </Marker>
+            <MapboxGL.PointAnnotation
+                key={this.props.id}
+                id={this.props.id}
+                title={this.props.route_name}
+                coordinate={coordinate}
+                />
         );
+        // return (
+        //     <Marker coordinate={coordinate}
+        //             onPress={this.props.onOpen}
+        //             onCalloutPress={this.props.onClose}
+        //         >
+        //         <View renderKey={this.state.key}>
+        //             <Callout style={styles.callout}>
+        //                 <View style={styles.row}>
+        //                     <Text style={styles.header}>Route:</Text>
+        //                     <Text style={styles.data}>{this.props.route_name}</Text>
+        //                 </View>
+        //                 {
+        //                     renderIf(this.props.destination !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>Destination:</Text>
+        //                             <Text style={styles.data}>{this.props.destination}</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //                 {
+        //                     renderIf(this.props.on_board !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>Riders:</Text>
+        //                             <Text style={styles.data}>{this.props.on_board}</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //                 {
+        //                     renderIf(this.props.status !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>status:</Text>
+        //                             <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //             </Callout>
+        //         </View>
+        //     </Marker>
+        // );
     }
 }
 

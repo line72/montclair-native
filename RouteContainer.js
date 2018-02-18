@@ -67,25 +67,27 @@ class RouteContainer extends Component {
         }
     }
 
-    // componentDidMount() {
-    //     // setup a timer to fetch the vehicles
-    //     this.interval = setInterval(() => {this.getVehicles();}, 10000);
+    componentDidMount() {
+        // setup a timer to fetch the vehicles
+        this.interval = setInterval(() => {this.getVehicles();}, 10000);
 
-    //     this.getRoutes().then((agencies) => {
-    //         const updated_agencies = agencies.reduce((acc, agency) => {
-    //             return acc.set(agency.name, agency);
-    //         }, this.state.agencies);
+        this.getRoutes().then((agencies) => {
+            const updated_agencies = agencies.reduce((acc, agency) => {
+                return acc.set(agency.name, agency);
+            }, this.state.agencies);
 
-    //         // update the state
-    //         this.setState({
-    //             ready: true,
-    //             agencies: updated_agencies
-    //         });
+            console.log(`gotRoutes: ${updated_agencies}`);
 
-    //         // do an immediate fetch
-    //         this.getVehicles();
-    //     });
-    // }
+            // update the state
+            this.setState({
+                ready: true,
+                agencies: updated_agencies
+            });
+
+            // do an immediate fetch
+            this.getVehicles();
+        });
+    }
 
     componentWillUnmount() {
         if (this.interval) {
@@ -131,7 +133,7 @@ class RouteContainer extends Component {
                     resolve(agency);
                 } else {
                     // update the vehicles in the agency
-                    agency.get('parser').getVehicles(agency, this.bounds).then((updated_agency) => {
+                    agency.get('parser').getVehicles(agency, null).then((updated_agency) => {
                         resolve(updated_agency);
                     });
                 }
@@ -142,6 +144,8 @@ class RouteContainer extends Component {
             const updated_agencies = agencies.reduce((acc, agency) => {
                 return acc.set(agency.name, agency);
             }, this.state.agencies);
+
+            console.log(`gotVehicles: ${updated_agencies}`);
 
             this.setState({
                 agencies: updated_agencies
@@ -176,12 +180,13 @@ class RouteContainer extends Component {
 
     onBoundsChanged = (region) => {
         console.log(`region changed: ${JSON.stringify(region)}`);
-        // this.bounds = {
-        //     "_southWest": {"lat": region.latitude - region.latitudeDelta,
-        //                    "lng": region.longitude - region.longitudeDelta},
-        //     "_northEast": {"lat": region.latitude + region.latitudeDelta,
-        //                    "lng": region.longitude + region.latitudeDelta}
-        // };
+        const p = region.properties;
+        this.bounds = {
+            "_southWest": {"lat": p.visibleBounds[1][1],
+                           "lng": p.visibleBounds[1][0]},
+            "_northEast": {"lat": p.visibleBounds[0][1],
+                           "lng": p.visibleBounds[0][0]}
+        };
     }
 
     render() {
@@ -250,6 +255,7 @@ class RouteContainer extends Component {
                 rotateEnabled={false}
                 pitchEnabled={false}
                 >
+                {routes}
             </MapboxGL.MapView>
         );
     }
