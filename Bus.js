@@ -36,8 +36,8 @@ class Bus extends Component {
 
     render() {
         // url of our icon
-        //const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
-        const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=0`;
+        const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
+        //const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=0`;
 
         // create an image from the url.
         // Note that it may take a moment to download, so
@@ -45,7 +45,7 @@ class Bus extends Component {
         // Once this finishes loading, we will set a random
         //  value in our state to force a re-render.
         //let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} onLoad={(e) => {this.setState({key: Math.random()})} }></Image>;
-        //let icon = <Image source={{uri: url}} style={{width: 39, height: 50}}></Image>;
+        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}}></Image>;
 
         // let coordinate = {latitude: this.props.position[0],
         //                   longitude: this.props.position[1]};
@@ -58,7 +58,10 @@ class Bus extends Component {
                 id={this.props.id}
                 title={this.props.route_name}
                 coordinate={coordinate}
-                />
+                >
+                {icon}
+                <MapboxGL.Callout title={this.props.route_name} />
+            </MapboxGL.PointAnnotation>
         );
         // return (
         //     <Marker coordinate={coordinate}
