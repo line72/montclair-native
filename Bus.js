@@ -22,54 +22,76 @@ class Bus extends Component {
         // url of our icon
         const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
 
-        let coordinate = [this.props.position[1], this.props.position[0]];
+
+        // !mwd - I have no idea what this should be
+        //  idealy it would be based on the zoom
+        const s = 0.001;
+        const offset = 0.0005;
+
+        //let coordinate = [this.props.position[1], this.props.position[0]];
+        let coordinates = [
+            [this.props.position[1] - (s / 2), this.props.position[0] + s], // top left
+            [this.props.position[1] + (s / 2), this.props.position[0] + s], // top right
+            [this.props.position[1] + (s / 2), this.props.position[0] - 0], // bottom right
+            [this.props.position[1] - (s / 2), this.props.position[0] - 0], // bottom left
+        ];
 
         return (
-            <MapboxGL.PointAnnotation
+            <MapboxGL.ImageSource
                 key={this.props.id}
                 id={`${this.props.id}`}
-                title={this.props.route_name}
-                coordinate={coordinate}
-                onSelected={this.props.onOpen}
-                onDeselected={this.props.onClose}
+                url={url}
+                coordinates={coordinates}
                 >
-                <Image source={{uri: url}} style={{width: 39, height: 50}} />
-                <MapboxGL.Callout title={this.props.route_name} style={styles.callout}>
-                    <View style={styles.content}>
-                        <View style={styles.row}>
-                            <Text style={styles.header}>Route:</Text>
-                            <Text style={styles.data}>{this.props.route_name}</Text>
-                        </View>
-                        {
-                            renderIf(this.props.destination !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>Destination:</Text>
-                                    <Text style={styles.data}>{this.props.destination}</Text>
-                                </View>
-                            )
-                        }
-                        {
-                            renderIf(this.props.on_board !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>Riders:</Text>
-                                    <Text style={styles.data}>{this.props.on_board}</Text>
-                                </View>
-                            )
-                        }
-                        {
-                            renderIf(this.props.status !== '')(
-                                <View style={styles.row}>
-                                    <Text style={styles.header}>status:</Text>
-                                    <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
-                                </View>
-                            )
-                        }
-                    </View>
-                    <View style={styles.tip} />
-                </MapboxGL.Callout>
-
-            </MapboxGL.PointAnnotation>
+                <MapboxGL.RasterLayer id={`img_${this.props.id}`} />
+            </MapboxGL.ImageSource>
         );
+
+        // return (
+        //     <MapboxGL.PointAnnotation
+        //         key={this.props.id}
+        //         id={`${this.props.id}`}
+        //         title={this.props.route_name}
+        //         coordinate={coordinate}
+        //         onSelected={this.props.onOpen}
+        //         onDeselected={this.props.onClose}
+        //         >
+        //         <MapboxGL.Callout title={this.props.route_name} style={styles.callout}>
+        //             <View style={styles.content}>
+        //                 <View style={styles.row}>
+        //                     <Text style={styles.header}>Route:</Text>
+        //                     <Text style={styles.data}>{this.props.route_name}</Text>
+        //                 </View>
+        //                 {
+        //                     renderIf(this.props.destination !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>Destination:</Text>
+        //                             <Text style={styles.data}>{this.props.destination}</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //                 {
+        //                     renderIf(this.props.on_board !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>Riders:</Text>
+        //                             <Text style={styles.data}>{this.props.on_board}</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //                 {
+        //                     renderIf(this.props.status !== '')(
+        //                         <View style={styles.row}>
+        //                             <Text style={styles.header}>status:</Text>
+        //                             <Text style={styles.data}>{this.props.status} ({this.props.deviation}) minutes</Text>
+        //                         </View>
+        //                     )
+        //                 }
+        //             </View>
+        //             <View style={styles.tip} />
+        //         </MapboxGL.Callout>
+
+        //     </MapboxGL.PointAnnotation>
+        // );
     }
 }
 
