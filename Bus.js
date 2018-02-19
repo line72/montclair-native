@@ -27,7 +27,7 @@ class Bus extends Component {
         return (
             <MapboxGL.PointAnnotation
                 key={this.props.id}
-                id={this.props.id}
+                id={`${this.props.id}`}
                 title={this.props.route_name}
                 coordinate={coordinate}
                 onSelected={this.props.onOpen}
