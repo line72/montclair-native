@@ -30,6 +30,8 @@ class Bus extends Component {
                 id={this.props.id}
                 title={this.props.route_name}
                 coordinate={coordinate}
+                onSelected={this.props.onOpen}
+                onDeselected={this.props.onClose}
                 >
                 <Image source={{uri: url}} style={{width: 39, height: 50}} />
                 <MapboxGL.Callout title={this.props.route_name} style={styles.callout}>
