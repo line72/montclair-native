@@ -1,3 +1,6 @@
+2018-02-19  Marcus Dillavou  <line72@line72.net>
+	* ISSUE-10 - Switch to Immutable for all Objects
+
 2018-02-16  Marcus Dillavou  <lie72@line72.net>
 	* ISSUE-12 - Stop timers when a component unmounts
 
