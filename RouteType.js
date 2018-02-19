@@ -44,7 +44,26 @@ async function getPath(rt) {
         });
     } else if (rt.polyline != null) {
         return new Promise((resolve, reject) => {
-            resolve(null);
+            // convert to geojson (and swap coordinates
+            //  from lat/lon to lon/lat)
+            let geojson = {
+                type: "FeatureCollection",
+                features: [
+                    {
+                        type: "Feature",
+                        geometry: {
+                            type: "MultiLineString",
+                            coordinates: rt.polyline.map((l) => {
+                                return l.map(([lat, lon]) => {
+                                    return [lon, lat];
+                                });
+                            })
+                        }
+                    }
+                ]
+            };
+            console.log(`polyline=${JSON.stringify(geojson)}`);
+            resolve(geojson);
         });
     } else {
         return new Promise((resolve, reject) => {
