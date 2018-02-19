@@ -13,6 +13,8 @@
  *******************************************/
 
 import axios from 'axios';
+
+import AgencyType from './AgencyType';
 import RouteType from './RouteType';
 import VehicleType from './VehicleType';
 
@@ -21,35 +23,42 @@ class AvailtecParser {
         this.url = url
     }
 
-    getRoutes() {
+    /**
+     * Get all the routes for an agency.
+     *
+     * This returns a new, updated AgencyType object.
+     */
+    getRoutes(agency) {
         let url = this.url + '/rest/Routes/GetVisibleRoutes';
 
         return axios.get(url).then((response) => {
-            let routes = response.data.reduce((acc, route) => {
-                acc[route.RouteId] = new RouteType({
+            return response.data.reduce((acc, route) => {
+                return AgencyType.addRoute(acc, RouteType.T({
                     id: route.RouteId,
                     number: route.RouteId,
                     name: route.LongName,
                     color: route.Color,
                     kml: this.url + '/Resources/Traces/' + route.RouteTraceFilename
-                });
-
-                return acc;
-            }, {});
-
-            return routes;
+                }));
+            }, agency);
         }).catch((e) => {
             console.log(`AvailtecParer::getRoutes: Exception when fetching routes: ${JSON.stringify(e)})`);
-            return {};
+            return agency;
         });
     }
 
-    getVehicles(bounds) {
+    /**
+     * Get all the vehicles for all routes in an agency (within a bounds).
+     *
+     * This returns a new, updated AgencyType object.
+     */
+    getVehicles(agency, bounds) {
         let url = this.url + '/rest/Routes/GetVisibleRoutes';
+        const a = AgencyType.clearRoutes(agency);
 
         return axios.get(url).then((response) => {
-            let vehicles = response.data.reduce((acc, route) => {
-                let vehicles = route.Vehicles.map((vehicle, i) => {
+            return response.data.reduce((acc, route) => {
+                return route.Vehicles.map((vehicle, i) => {
                     return this.parseVehicle(route, vehicle);
                 }).filter((v) => {
                     // filter vehicles not within the bounds
@@ -65,17 +74,16 @@ class AvailtecParser {
                     } else {
                         return false;
                     }
-                });
-                acc[route.RouteId] = vehicles;
+                }).reduce((acc2, v) => {
+                    const route_type = acc2.routes.get(route.RouteId);
 
-                return acc;
-            }, {});
-
-            return vehicles;
+                    return AgencyType.addVehicle(acc2, route_type, v);
+                }, acc);
+            }, a);
         });
     }
     parseVehicle(route, vehicle) {
-        return new VehicleType({
+        return VehicleType.T({
             id: vehicle.VehicleId,
             position: [vehicle.Latitude, vehicle.Longitude],
             direction: vehicle.DirectionLong,

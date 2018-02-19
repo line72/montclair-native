@@ -12,22 +12,17 @@
  * Licensed Under the GPLv3
  *******************************************/
 
-class VehicleType {
-    constructor({id, position, direction = '', heading,
-                 destination, on_board = 0, deviation = 0,
-                 op_status = '', color, route_id}) {
+import Immutable from 'immutable';
 
-        this.id = id;
-        this.position = position;
-        this.direction = direction;
-        this.heading = heading;
-        this.destination = destination;
-        this.on_board = on_board;
-        this.deviation = deviation;
-        this.op_status = op_status;
-        this.color = color;
-        this.route_id = route_id;
-    }
-}
+var T = Immutable.Record({id: 0,
+                          position: [0,0],
+                          direction: '',
+                          heading: 0,
+                          destination: '',
+                          on_board: 0,
+                          deviation: 0,
+                          op_status: '',
+                          color: '',
+                          route_id: null});
 
-export default VehicleType;
+export default {T};
