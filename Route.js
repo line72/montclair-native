@@ -25,22 +25,22 @@ class Route extends Component {
         super(props);
 
         this.state = {
-            polyline: null,
+            geojson: null,
             selected: false
         };
 
         // fetch the kml
-        RouteType.getPath(this.props.route).then((polyline) => {
+        RouteType.getPath(this.props.route).then((geojson) => {
             this.setState({
-                polyline: polyline
+                geojson: geojson
             });
         });
     }
 
     render() {
         let style = {
-            strokeColor: `#${this.props.color}`,
-            strokeWidth: this.state.selected ? 7 : 1
+            lineColor: `#${this.props.color}`,
+            lineWidth: this.state.selected ? 7 : 1
         };
 
         let buses = this.props.vehicles.toList().map((vehicle) => {
@@ -76,22 +76,20 @@ class Route extends Component {
 
         });
 
-        if (this.state.polyline != null) {
-            let polylines = this.state.polyline.map((p, i) => {
-                let coordinates = p.map(([lat, lng]) => {
-                    return {latitude: lat, longitude: lng};
-                });
-                // return (
-                //     <Polyline
-                //         key={this.props.id + "_" + i}
-                //         coordinates={coordinates}
-                //         strokeColor={style.strokeColor}
-                //         strokeWidth={style.strokeWidth} />
-                // );
-            });
+        if (this.state.geojson != null) {
+            let path = (
+                <MapboxGL.ShapeSource
+                    id={this.props.id + "_shape"}
+                    key={this.props.id}
+                    shape={this.state.geojson}>
+                    <MapboxGL.LineLayer
+                        id={this.props.id + "_stroke"}
+                        style={style} />
+                </MapboxGL.ShapeSource>
+            );
 
             return [
-                polylines,
+                path,
                 buses
             ];
         } else {

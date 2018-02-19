@@ -18,40 +18,12 @@ import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import renderIf from 'render-if';
 
 class Bus extends Component {
-    constructor(props) {
-        super(props);
-
-        // !mwd - This is a bit of a hack
-        //  Our Image takes a while to fetch
-        //   and the map doesn't automatically
-        //   render the updated image upon finishing.
-        //  So, we have a key in our state, and after
-        //   we have fetched the updated icon, we set
-        //   the key to a random value, causing a
-        //   state change.
-        this.state = {
-            key: 0
-        };
-    }
-
     render() {
         // url of our icon
         const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
-        //const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=0`;
 
-        // create an image from the url.
-        // Note that it may take a moment to download, so
-        //  the initial image may be wrong.
-        // Once this finishes loading, we will set a random
-        //  value in our state to force a re-render.
-        //let icon = <Image source={{uri: url}} style={{width: 39, height: 50}} onLoad={(e) => {this.setState({key: Math.random()})} }></Image>;
-        let icon = <Image source={{uri: url}} style={{width: 39, height: 50}}></Image>;
-
-        // let coordinate = {latitude: this.props.position[0],
-        //                   longitude: this.props.position[1]};
         let coordinate = [this.props.position[1], this.props.position[0]];
 
-        console.log(`Bus.render ${JSON.stringify(coordinate)}`);
         return (
             <MapboxGL.PointAnnotation
                 key={this.props.id}
@@ -59,7 +31,7 @@ class Bus extends Component {
                 title={this.props.route_name}
                 coordinate={coordinate}
                 >
-                {icon}
+                <Image source={{uri: url}} style={{width: 39, height: 50}} />
                 <MapboxGL.Callout title={this.props.route_name} style={styles.callout}>
                     <View style={styles.content}>
                         <View style={styles.row}>

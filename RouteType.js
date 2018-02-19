@@ -40,17 +40,11 @@ async function getPath(rt) {
     if (rt.kml != null) {
         return axios.get(rt.kml).then((response) => {
             let xml = new DOMParser().parseFromString(response.data, 'text/xml');
-            let geo = toGeoJSON.kml(xml);
-
-            // convert to a polyline
-            let geojson = new GeoJSON(geo);
-            let polyline = geojson.toPolyline();
-
-            return polyline;
+            return toGeoJSON.kml(xml);
         });
     } else if (rt.polyline != null) {
         return new Promise((resolve, reject) => {
-            resolve(rt.polyline);
+            resolve(null);
         });
     } else {
         return new Promise((resolve, reject) => {
