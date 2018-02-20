@@ -25,12 +25,13 @@ class Bus extends Component {
         // create a unique icon based on the id and heading
         //let icon_id = `bus-${this.props.id}-${this.props.heading}`;
         let icon_id=`bus-${this.props.id}`;
+        let text_id=`bus-callout-${this.props.id}`;
         let features = {
             type: 'FeatureCollection',
+            id: icon_id,
             features: [
                 {
                     type: 'Feature',
-                    id: icon_id,
                     properties: {
                         icon: icon_id
                     },
@@ -39,7 +40,18 @@ class Bus extends Component {
                         coordinates: [this.props.position[1],
                                       this.props.position[0]]
                     }
-                }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: `Route: ${this.props.route_name}`,
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [this.props.position[1],
+                                      this.props.position[0]]
+                    }
+                },
             ]
         };
 
@@ -53,7 +65,7 @@ class Bus extends Component {
                 >
                 <MapboxGL.SymbolLayer
                     id={icon_id}
-                    style={mapStyles.icon} />
+                    style={[mapStyles.icon, mapStyles.callout]} />
             </MapboxGL.ShapeSource>
         );
 
@@ -161,6 +173,9 @@ const mapStyles = MapboxGL.StyleSheet.create({
         iconImage: '{icon}',
         iconSize: 1,
         iconOffset: [0, -25]
+    },
+    callout: {
+        textField: '{name}'
     }
 });
 
