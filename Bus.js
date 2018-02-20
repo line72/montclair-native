@@ -16,35 +16,80 @@ import React, { Component } from 'react';
 import { Animated, View, Text, Image, StyleSheet } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import renderIf from 'render-if';
+//import exampleIcon from './exampleIcon.png';
+
 
 class Bus extends Component {
     render() {
         // url of our icon
-        const url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
+        let url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
 
+        // // !mwd - I have no idea what this should be
+        // //  idealy it would be based on the zoom
+        // const s = 0.001;
+        // const offset = 0.0005;
 
-        // !mwd - I have no idea what this should be
-        //  idealy it would be based on the zoom
-        const s = 0.001;
-        const offset = 0.0005;
+        // //let coordinate = [this.props.position[1], this.props.position[0]];
+        // let coordinates = [
+        //     [this.props.position[1] - (s / 2), this.props.position[0] + s], // top left
+        //     [this.props.position[1] + (s / 2), this.props.position[0] + s], // top right
+        //     [this.props.position[1] + (s / 2), this.props.position[0] - 0], // bottom right
+        //     [this.props.position[1] - (s / 2), this.props.position[0] - 0], // bottom left
+        // ];
 
-        //let coordinate = [this.props.position[1], this.props.position[0]];
-        let coordinates = [
-            [this.props.position[1] - (s / 2), this.props.position[0] + s], // top left
-            [this.props.position[1] + (s / 2), this.props.position[0] + s], // top right
-            [this.props.position[1] + (s / 2), this.props.position[0] - 0], // bottom right
-            [this.props.position[1] - (s / 2), this.props.position[0] - 0], // bottom left
-        ];
+        // return (
+        //     <MapboxGL.ImageSource
+        //         key={this.props.id}
+        //         id={`${this.props.id}`}
+        //         url={url}
+        //         coordinates={coordinates}
+        //         onPress={() => {console.log('on press');}}
+        //         >
+        //         <MapboxGL.RasterLayer id={`img_${this.props.id}`} />
+        //     </MapboxGL.ImageSource>
+        // );
+
+        //let img = <Image source={{uri: url}} style={{width: 39, height: 50}} defaultSource={{uri: require('./exampleIcon.png')}} />;
+        //let img = <Image source={require('./exampleIcon.png')} />;
+
+        let icon_id = `bus-${this.props.id}`;
+        let features = {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    id: icon_id,
+                    properties: {
+                        icon: icon_id
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [this.props.position[1],
+                                      this.props.position[0]]
+                    }
+                }
+            ]
+        };
+
+        const mapStyles = MapboxGL.StyleSheet.create({
+            icon: {
+                iconImage: '{icon}',
+                iconSize: 1
+            }
+        });
+
 
         return (
-            <MapboxGL.ImageSource
+            <MapboxGL.ShapeSource
                 key={this.props.id}
                 id={`${this.props.id}`}
-                url={url}
-                coordinates={coordinates}
+                shape={features}
+                images={{[icon_id]: {uri: url}}}
                 >
-                <MapboxGL.RasterLayer id={`img_${this.props.id}`} />
-            </MapboxGL.ImageSource>
+                <MapboxGL.SymbolLayer
+                    id={`bus_${this.props.id}`}
+                    style={mapStyles.icon} />
+            </MapboxGL.ShapeSource>
         );
 
         // return (
@@ -146,5 +191,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     }
 });
+
 
 export default Bus;
