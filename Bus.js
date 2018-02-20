@@ -23,7 +23,8 @@ class Bus extends Component {
         let url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
 
         // create a unique icon based on the id and heading
-        let icon_id = `bus-${this.props.id}-${this.props.heading}`;
+        //let icon_id = `bus-${this.props.id}-${this.props.heading}`;
+        let icon_id=`bus-${this.props.id}`;
         let features = {
             type: 'FeatureCollection',
             features: [
