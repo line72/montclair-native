@@ -16,43 +16,14 @@ import React, { Component } from 'react';
 import { Animated, View, Text, Image, StyleSheet } from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import renderIf from 'render-if';
-//import exampleIcon from './exampleIcon.png';
-
 
 class Bus extends Component {
     render() {
         // url of our icon
         let url = `https://realtimebjcta.availtec.com/InfoPoint/IconFactory.ashx?library=busIcons\\mobile&colortype=hex&color=${this.props.color}&bearing=${this.props.heading}`;
 
-        // // !mwd - I have no idea what this should be
-        // //  idealy it would be based on the zoom
-        // const s = 0.001;
-        // const offset = 0.0005;
-
-        // //let coordinate = [this.props.position[1], this.props.position[0]];
-        // let coordinates = [
-        //     [this.props.position[1] - (s / 2), this.props.position[0] + s], // top left
-        //     [this.props.position[1] + (s / 2), this.props.position[0] + s], // top right
-        //     [this.props.position[1] + (s / 2), this.props.position[0] - 0], // bottom right
-        //     [this.props.position[1] - (s / 2), this.props.position[0] - 0], // bottom left
-        // ];
-
-        // return (
-        //     <MapboxGL.ImageSource
-        //         key={this.props.id}
-        //         id={`${this.props.id}`}
-        //         url={url}
-        //         coordinates={coordinates}
-        //         onPress={() => {console.log('on press');}}
-        //         >
-        //         <MapboxGL.RasterLayer id={`img_${this.props.id}`} />
-        //     </MapboxGL.ImageSource>
-        // );
-
-        //let img = <Image source={{uri: url}} style={{width: 39, height: 50}} defaultSource={{uri: require('./exampleIcon.png')}} />;
-        //let img = <Image source={require('./exampleIcon.png')} />;
-
-        let icon_id = `bus-${this.props.id}`;
+        // create a unique icon based on the id and heading
+        let icon_id = `bus-${this.props.id}-${this.props.heading}`;
         let features = {
             type: 'FeatureCollection',
             features: [
@@ -71,23 +42,15 @@ class Bus extends Component {
             ]
         };
 
-        const mapStyles = MapboxGL.StyleSheet.create({
-            icon: {
-                iconImage: '{icon}',
-                iconSize: 1
-            }
-        });
-
-
         return (
             <MapboxGL.ShapeSource
-                key={this.props.id}
-                id={`${this.props.id}`}
+                key={icon_id}
+                id={icon_id}
                 shape={features}
                 images={{[icon_id]: {uri: url}}}
                 >
                 <MapboxGL.SymbolLayer
-                    id={`bus_${this.props.id}`}
+                    id={icon_id}
                     style={mapStyles.icon} />
             </MapboxGL.ShapeSource>
         );
@@ -189,6 +152,12 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         alignItems: 'center',
         justifyContent: 'center'
+    }
+});
+const mapStyles = MapboxGL.StyleSheet.create({
+    icon: {
+        iconImage: '{icon}',
+        iconSize: 1
     }
 });
 
