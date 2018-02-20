@@ -26,7 +26,6 @@ class Route extends Component {
 
         this.state = {
             geojson: null,
-            selected: false
         };
 
         // fetch the kml
@@ -40,21 +39,10 @@ class Route extends Component {
     render() {
         let style = {
             lineColor: `#${this.props.color}`,
-            lineWidth: this.state.selected ? 7 : 1
+            lineWidth: this.props.selected ? 7 : 1
         };
 
         let buses = this.props.vehicles.toList().map((vehicle) => {
-            let onOpen = () => {
-                this.setState({
-                    selected: true
-                });
-            }
-            let onClose = () => {
-                this.setState({
-                    selected: false
-                });
-            }
-
             let route_name = `${this.props.number} - ${this.props.name}`;
 
             return (
@@ -69,8 +57,7 @@ class Route extends Component {
                      status={vehicle.op_status}
                      deviation={vehicle.deviation}
                      color={this.props.color}
-                     onOpen={onOpen}
-                     onClose={onClose}
+                     onPress={this.props.onSelected}
                      />
             );
 

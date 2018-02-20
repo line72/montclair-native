@@ -49,6 +49,7 @@ class Bus extends Component {
                 id={icon_id}
                 shape={features}
                 images={{[icon_id]: {uri: url}}}
+                onPress={this.props.onPress}
                 >
                 <MapboxGL.SymbolLayer
                     id={icon_id}

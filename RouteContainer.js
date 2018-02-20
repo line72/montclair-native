@@ -53,6 +53,7 @@ class RouteContainer extends Component {
             isAndroidPermissionGranted: false,
             ready: false,
             agencies: agencies,
+            selectedRoute: null,
             region: [configuration.center[1], configuration.center[0]]
         };
     }
@@ -212,15 +213,22 @@ class RouteContainer extends Component {
                     return (null);
                 }
 
+                let onSelected = () => {
+                    this.setState({
+                        selectedRoute: route.id
+                    });
+                };
+
                 return (
                     <Route key={route.id}
                            route={route}
                            id={route.id}
                            number={route.number}
                            name={route.name}
-                           selected={route.selected}
+                           selected={route.id == this.state.selectedRoute}
                            color={route.color}
                            vehicles={route.vehicles}
+                           onSelected={onSelected}
                            />
                 );
             });
@@ -254,6 +262,7 @@ class RouteContainer extends Component {
                 onRegionDidChange={this.onBoundsChanged}
                 rotateEnabled={false}
                 pitchEnabled={false}
+                onPress={() => {this.setState({selectedRoute: null});}}
                 >
                 {routes}
             </MapboxGL.MapView>
