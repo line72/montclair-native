@@ -158,7 +158,8 @@ const styles = StyleSheet.create({
 const mapStyles = MapboxGL.StyleSheet.create({
     icon: {
         iconImage: '{icon}',
-        iconSize: 1
+        iconSize: 1,
+        iconOffset: [0, -25]
     }
 });
 
