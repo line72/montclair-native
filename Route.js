@@ -90,14 +90,12 @@ class Route extends Component {
                 );
             });
 
-            return (
-                <View>
-                    {polylines}
-                    {buses}
-                </View>
-            );
+            return [
+                polylines,
+                buses
+            ];
         } else {
-            return (<View>{buses}</View>);
+            return buses;
         }
     }
 }
