@@ -54,7 +54,8 @@ class Bus extends Component {
             <Marker coordinate={coordinate}
                     onPress={this.props.onOpen}
                     onCalloutPress={this.props.onClose}
-                >
+                    >
+                { /*
                 <View renderKey={this.state.key}>
                     <Callout style={styles.callout}>
                         <View style={styles.row}>
@@ -87,6 +88,8 @@ class Bus extends Component {
                         }
                     </Callout>
                 </View>
+                  */
+                    }
             </Marker>
         );
     }
